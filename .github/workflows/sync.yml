@@ -24,7 +24,7 @@ jobs:
           
       - name: Sync with upstream repository
         run: |
-          git remote add upstream https://github.com/gitbruc/packages_utils_dockerd
+          git remote add upstream https://git.cooluc.com/sbwml/packages_utils_dockerd
           git fetch upstream
           git merge upstream/main
           git push
