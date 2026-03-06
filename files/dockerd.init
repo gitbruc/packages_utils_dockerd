@@ -39,6 +39,21 @@ find_network_device() {
 	echo "${device_section}"
 }
 
+check_zone() {
+	local cfg="$1"
+	local name
+
+	config_get name "$cfg" name
+	[ "$name" = "lan" ] && echo "$cfg"
+}
+
+find_lan_zone() {
+	local section
+
+	config_load firewall
+	config_foreach check_zone zone
+}
+
 boot() {
 	uciadd
 	rc_procd start_service
@@ -102,6 +117,14 @@ uciadd() {
 		uci_quiet del_list firewall.${zone}.network="${iface}"
 		uci_quiet add_list firewall.${zone}.network="${iface}"
 		uci_quiet commit firewall
+	fi
+
+	# Add docker interface to LAN zone
+	lan_zone=$(find_lan_zone)
+	if [ -n "$lan_zone" ]; then
+		uci del_list firewall.${lan_zone}.network="${iface}"
+		uci add_list firewall.${lan_zone}.network="${iface}"
+		uci commit firewall
 	fi
 
 	reload_config
